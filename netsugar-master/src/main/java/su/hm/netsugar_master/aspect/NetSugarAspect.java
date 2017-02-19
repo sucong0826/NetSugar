@@ -34,10 +34,11 @@ public class NetSugarAspect {
     // This means that around advice runs when this kind of method executing
     // which return types and name and parameters have no limitation.
     // it is a property-based join point.
-    // private static final String POINTCUT = EXECUTION + "(@" + NET_SUGAR_ANNO + " * *(..))";
+    
 
-    private static final String POINTCUT = "execution(@su.hm.myapplication.annotations.NetSugar * *(..))";
-
+    // private static final String POINTCUT = "execution(@su.hm.netsugar_master.annotations.NetSugar * *(..))";
+    private static final String POINTCUT = EXECUTION + "(@" + NET_SUGAR_ANNO + " * *(..))";
+	
     // here defines a point cut with annotation.
     // AspectJ 5 defines a pointcut: pointcut pc() : call(void Foo.m());
     // pc() is the name of pointcut just like the name of 'methodAnnotated'.
