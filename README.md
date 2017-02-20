@@ -69,6 +69,13 @@ public void offline() {
 
 4.Now, there is no need to do anything, AspectJ is coming.
 
+# Limitations & Issues
+1. Only methods can be annotated with @NetSugar.
+2. The methods you point out in @Offline are declared without arguments merely. It is a big issue now which is going to solve in next version. 
+3. Write an annotation of @NetSugar is a litte bit complicated. It will be simplified next version.
+4. When we just want to check network state between codes where the execution is not from the beginning, it is hard for @NetSugar framework.
+   It is an issue the annotation you write to check network is not from the beginning.
+
 # Note
 You'd better to config all arguments to @NetSugar, specially the method in @Offline.
 Method searching depends on Java reflection, if there is no method matching, a `NoSuchMethodException`
