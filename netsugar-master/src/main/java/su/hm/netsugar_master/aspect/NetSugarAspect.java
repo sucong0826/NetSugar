@@ -16,6 +16,8 @@ import su.hm.netsugar_master.entity.NetSugarDescriptor;
 import su.hm.netsugar_master.entity.NetworkType;
 
 import static su.hm.netsugar_master.configs.Configs.EMPTY_METHOD_NAME;
+import static su.hm.netsugar_master.configs.Configs.EXECUTION;
+import static su.hm.netsugar_master.configs.Configs.NET_SUGAR_ANNO;
 import static su.hm.netsugar_master.configs.Configs.STR_MOBILE;
 
 /**
