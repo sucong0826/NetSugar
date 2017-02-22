@@ -2,12 +2,13 @@ package su.hm.netsugar;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.view.View;
 import android.widget.Toast;
 
 import su.hm.netsugar_master.NetworkSugar;
 import su.hm.netsugar_master.annotations.NetSugar;
 import su.hm.netsugar_master.annotations.Offline;
-import su.hm.netsugar_master.annotations.Online;
+import su.hm.netsugar_master.entity.MatchResult;
 import su.hm.netsugar_master.entity.NetworkType;
 
 public class MainActivity extends AppCompatActivity {
@@ -19,22 +20,22 @@ public class MainActivity extends AppCompatActivity {
 
         NetworkSugar.inject(this);
 
-        showToast(2);
+        findViewById(R.id.button).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                playVideo();
+            }
+        });
     }
 
-    @NetSugar(
-            check = true,
-            online = @Online(type = NetworkType.WIFI),
-            offline = @Offline(method = "offline"))
-    public void showToast(int x) {
-        Toast.makeText(MainActivity.this, "this".concat(String.valueOf(x)), Toast.LENGTH_SHORT).show();
+    @NetSugar(type = NetworkType.WIFI, pair = 0x2)
+    public void playVideo() {
+        Toast.makeText(MainActivity.this, "playVideo", Toast.LENGTH_SHORT).show();
     }
 
-    /**
-     * offline method is to handle situation without network.
-     */
-    public void offline() {
-        // here is just a sample.
-        Toast.makeText(MainActivity.this, "Sorry, Network is bad", Toast.LENGTH_SHORT).show();
+    @Offline(pair = 0x2)
+    public void offline(MatchResult result) {
+        Toast.makeText(MainActivity.this, "Sorry, Network is OK but match type is" + result.getMatchType(),
+                Toast.LENGTH_SHORT).show();
     }
 }
