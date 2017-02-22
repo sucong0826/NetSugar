@@ -10,5 +10,6 @@ package su.hm.netsugar_master.entity;
 public enum NetworkType {
     MOBILE,
     WIFI,
-    ALL
+    ALL,
+    DISCONNECTED
 }

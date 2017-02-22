@@ -1,6 +1,8 @@
 package su.hm.netsugar_master.entity;
 
 
+import java.lang.reflect.Method;
+
 import su.hm.netsugar_master.annotations.NetSugar;
 
 /**
@@ -14,78 +16,64 @@ import su.hm.netsugar_master.annotations.NetSugar;
 public class NetSugarDescriptor {
 
     /**
-     * name of method which is annotated with {@link NetSugar}
-     * as a key in a ArrayMap
-     */
-    private String annotatedMethodName;
-
-    /**
-     * to @NetSugar check method
-     */
-    private boolean isCheck;
-
-    /**
      * to @Online network type method
      */
-    private NetworkType networkType;
+    private NetworkType type;
 
     /**
-     * to @Offline method
+     * a key for pairing another method
      */
-    private String offlineMethodName;
+    private int pair;
 
-    private NetSugarDescriptor() {
-        // do not provide this constructor
-    }
+    /**
+     * method name which is annotated with NetSugar.
+     * As key for ArrayMap.
+     */
+    private String method;
+
+    /**
+     * One method annotated with @NetSugar
+     * is associated with one method annotated with @Offline.
+     */
+    private Method hookMethod;
 
     // private constructor with builder instance.
     private NetSugarDescriptor(Builder builder) {
-        annotatedMethodName = builder.annotatedMethodName;
-        isCheck = builder.isCheck;
-        networkType = builder.networkType;
-        offlineMethodName = builder.offlineMethodName;
+        type = builder.type;
+        pair = builder.pair;
+        method = builder.method;
+        hookMethod = builder.hookMethod;
     }
 
-    public boolean isCheck() {
-        return isCheck;
-    }
 
     public NetworkType getNetworkType() {
-        return networkType;
-    }
-
-    public String getOfflineMethodName() {
-        return offlineMethodName;
-    }
-
-    public String getAnnotatedMethodName() {
-        return annotatedMethodName;
+        return this.type;
     }
 
     // use builder to create NetSugarDescription method.
     public static class Builder {
-        private String annotatedMethodName;
-        private boolean isCheck;
-        private NetworkType networkType;
-        private String offlineMethodName;
+        private NetworkType type;
+        private int pair;
+        private String method;
+        private Method hookMethod;
 
-        public Builder annotatedMethod(String methodName) {
-            this.annotatedMethodName = methodName;
+        public Builder type(NetworkType type) {
+            this.type = type;
             return this;
         }
 
-        public Builder isCheck(boolean isCheck) {
-            this.isCheck = isCheck;
+        public Builder pair(int pair) {
+            this.pair = pair;
             return this;
         }
 
-        public Builder networkType(NetworkType networkType) {
-            this.networkType = networkType;
+        public Builder method(String method) {
+            this.method = method;
             return this;
         }
 
-        public Builder offlineMethod(String methodName) {
-            this.offlineMethodName = methodName;
+        public Builder hook(Method method) {
+            this.hookMethod = method;
             return this;
         }
 
@@ -97,9 +85,26 @@ public class NetSugarDescriptor {
     @Override
     public String toString() {
         return "NetSugarDescriptor{" +
-                "isCheck=" + isCheck +
-                ", networkType=" + networkType +
-                ", offlineMethodName='" + offlineMethodName + '\'' +
+                "type=" + type +
+                ", pair=" + pair +
+                ", method=" + method +
+                ", hook=" + hookMethod +
                 '}';
+    }
+
+    public NetworkType getType() {
+        return type;
+    }
+
+    public int getPair() {
+        return pair;
+    }
+
+    public String getMethod() {
+        return method;
+    }
+
+    public Method getHookMethod() {
+        return hookMethod;
     }
 }

@@ -58,13 +58,14 @@ public final class NetworkSugar {
      * Create a default toast.
      *
      * @param toast text to show
-     * @return a toast instance
      */
+    @SuppressWarnings("unused")
     public static void showToast(String toast) {
         Toast.makeText(contextWeakReference.get(), toast, Toast.LENGTH_SHORT).show();
     }
 
     // no more useful
+    @SuppressWarnings("unused")
     public static void printLog(String log) {
         Log.i("NetSugar", log);
     }
