@@ -26,7 +26,7 @@ public class NetSugarPlugin implements Plugin<Project> {
         }
 
         project.dependencies {
-            compile 'com.github.sucong0826:'
+            // compile 'com.github.sucong0826:'  waiting....
             compile 'org.aspectj:aspectjrt:1.8.5'
         }
 
@@ -35,7 +35,7 @@ public class NetSugarPlugin implements Plugin<Project> {
             variant.dex.doFirst {
                 String[] args = [
                         "-showWeaveInfo",
-                        "-1.8",
+                        "-1.5",
                         "-inpath", javaCompile.destinationDir.toString(),
                         "-aspectpath", javaCompile.classpath.asPath,
                         "-d", javaCompile.destinationDir.toString(),
