@@ -56,43 +56,46 @@ Now Let's see now.
 
 # Usage
 --------
-0. Pre-declaration
+1. Pre-declaration
 When I want to upload NetSugar to Maven with Bintray, I didn't do that.
 This NetSugar is still beyond my goal, I fix it version by version.
 NetSugar will be uploaded to Maven when it is good enough.
 So everybody now can use it from git cloning and commit your contributions.
 Thanks here.
 
-1. Because we check network state, so you must authorize the permission of accessing network state. To add permission in your
+2. Because we check network state, so you must authorize the permission of accessing network state. To add permission in your
 app `AndroidManifest.xml`.
-```
+
+```xml
 <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 ```
 
-2. Please copy netsugar-master folder with sources into your own project as a single module.
+3. Please copy netsugar-master folder with sources into your own project as a single module.
 Let your 'app' module add a dependence on it or you do this in your app `build.gradle`:
-```
+
+``` groovy
 dependencies {
     compile project(':netsugar-master')
     compile 'org.aspectj:aspectjrt:1.8.5'
 }
 ```
 
-3. Please compile `'org.aspectj:aspectjrt:1.8.5'` or other versions you know such as 1.8.9+.
+4. Please compile `'org.aspectj:aspectjrt:1.8.5'` or other versions you know such as 1.8.9+.
 Just like above, oh, it should be added in your 'app' module `build.gradle`.
 
-4. Config 'app' `build.gradle`.
+5. Config 'app' `build.gradle`.
 If you don't know how to config, please check target project. Give a link below:
 [app build.gradle configuration][1]
 
-5. Add a Pair of Annotation
+6. Add a Pair of Annotation
 NetSugar provides three annotations for you to use:
     * `@NetSugar(type=[NetworkType], pair=[int])`
     * `@Offline(pair=[int])`
     * `@Global`
 
 @NetSugar and @Offline are aimed at method only.<strong>Please remember, they MUST be used as a PAIR with same value.</strong>
-```
+
+```java
 @NetSugar(type=NetworkType.WIFI, pair=0x1)
 private void playVideo() {
     // only prepare playing video works.
@@ -110,7 +113,7 @@ If you won't, `NoSuchMethodException` will be thrown. It is caused by method sea
 You may read `netsugar-master/src/main/java/su.hm.netsugar_master/aspect/aj_ns/NetSugarAspect.java` to get
 more details.
 
-6. Config 'pair' value in them
+7. Config 'pair' value in them
 Like above, pairs are same value. Why I do that? For method hooking.
 In the previous version, there was a big issue, is that when a class has two methods with the same name,
 NetSugarAspect is puzzled. It will handle the execution in order. However, problems happened. Two methods
@@ -122,7 +125,7 @@ Please note that:
     * if you annotate method with @Offline and same value more than one, only the first method framework checked will be executed.
     * The default pair value of @Offline is 0x0, it is used for validating inside, please don't use it. Pair value will be taken bigger than 0x0.
 
-7. Receiving the callback argument:MatchResult
+8. Receiving the callback argument:MatchResult
 You may be inquisitive about why we provide the method with a MatchResult as above.
 The method annotated with @Offline will be handled automatically, that is, there is no need to consider how
 and where to invoke this method. The method is executed by NetSugar framework. As for you, just compose your
@@ -130,7 +133,8 @@ codes when this situation happen.
 MatchResult is an argument which NetSugar gives you. It represents network checking result and framework has
 already initialized for you, just use it like an normal object.
 It will tell you `matchType(int)`, `reason(String)`, `currentNetworkType(NetworkType)`.
-```
+
+```java
     @Offline(pair=0x1)
     private void handleOffline(MatchResult result) {
         Toast.makeText(MainActivity.this, result.getReason(), /* time */).show();
@@ -140,10 +144,12 @@ Please note that:
     * The method you provide must have an argument and its type must be MatchResult.
     * You can define your own arguments after MatchResult in params list.
 
-8. Finish Injection
+9. Finish Injection
 In some Activity, you must finish this operation:
-```
+
+``` java
     // this means context fo current Activity
+    // onCreate(Bundle savedInstanceState)
     NetworkSugar.inject(this);
 ```
 
