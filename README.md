@@ -1,12 +1,30 @@
-# NetSugar
+# NetSugar V1.0 Stable
 
-![NetSugar](/gifs/display.gif)
-this gif is displaying a situation...
+Hey, NetSugar stable version 1.0 is coming, why not to have a try?
+![NetSugar](/images/netsugar_ad.jpg)
+
+# ScreenShots for Situations
+--------
+![NetSugar](/screenshots/all_disconnect.png)
+1. No matter what type of network state (connected), but wifi or mobile network is disconnected.
+
+![NetSugar](/screenshots/mobile_disconnect.png)
+2. Mobile network is required but disconnect.
+
+![NetSugar](/screenshots/wifi_disconnect.png)
+3. Wifi is required but disconnect or is a captive portal network.
+
+![NetSugar](/screenshots/wrong_matched.png)
+4. Wifi is required but mobile network now.
+
+![NetSugar](/screenshots/normal.png)
+5. Everything is ok. Claps! *^.^*
 
 # Introduction
-NetSugar is an Android + AOP production. This open source project was created by way of Aspect-Oriented Program
-with AspectJ(ApsectJ 5) on Android. It is a simple and lightweight framework to check network state. Sometimes,
-when we write functions which are needed to check network:
+--------
+NetSugar is an Android + AOP framework. It was a way of Aspect-Oriented Programming
+with AspectJ(ApsectJ 5) on Android. It is an easy-use and lightweight framework to check network state.
+Sometimes, when we need functions which are needed to check network:
 ```sample
 void playVideo() {
 	boolean isNetworkConnected = NetworkUtils.isConnect(SomeActivity.this);
@@ -17,183 +35,153 @@ void playVideo() {
 	}
 }
 ```
-When I got the idea to change this, I've tried a lot of ways to solve it but failed until I was aware of
-AOP and ApsectJ. I analyzed an Annotation open source and then I tried my best to finish NetSugar by AspectJ
-and annotation.
+It makes feel uncomfortable, what I want is the separation of situations. Of course, if a method with
+strong logical and network state requiring, NetSugar will be helpful. What I think is a method only handle
+one situation whatever the network state is. Just like below:
+```
+private void playVideo() {...}
+```
+when network is not satisfied,
+```
+private void offlineOfPlayingVideo() {...}
+```
 
-Therefore, NetSugar just solve this small piece of code and change it into an annotation.
+To be honestly, AspectJ for Android can do a lot of things, it is extremely strong and comprehensive beyond your thought.
+As for me, NetSugar is just a way to learn and try to use AOP and AspectJ. Therefore, NetSugar is a crosscutting like AOP.
+In the future I will do more things on Android with AOP and AspectJ, in the meanwhile, optimization, performance will be
+considered more and more.
+
+NetSugar v1.0 stable made a big step, I simplify its usage and performance, new functions are pending when they are tested.
+Now Let's see now.
 
 # Usage
 --------
-1.first, using `NetworkSugar.inject(this);` to finish an injection.
-```
-public class MainActivity extends AppCompatActvity {
-	
-	@Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+0. Pre-declaration
+When I want to upload NetSugar to Maven with Bintray, I didn't do that.
+This NetSugar is still beyond my goal, I fix it version by version.
+NetSugar will be uploaded to Maven when it is good enough.
+So everybody now can use it from git cloning and commit your contributions.
+Thanks here.
 
-		// just like this
-        NetworkSugar.inject(this);
-		...
-    }
+1. Because we check network state, so you must authorize the permission of accessing network state. To add permission in your
+app `AndroidManifest.xml`.
+```
+<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+```
+
+2. Please copy netsugar-master folder with sources into your own project as a single module.
+Let your 'app' module add a dependence on it or you do this in your app `build.gradle`:
+```
+dependencies {
+    compile project(':netsugar-master')
+    compile 'org.aspectj:aspectjrt:1.8.5'
 }
 ```
 
-2.To annotate a method with `@NetSugar` annotation. Please do not consider the offline situation.
-`offline = @Offline(method = "offline")` will handle it.
-```
-@NetSugar(
-            check = true,
-            online = @Online(type = NetworkType.WIFI),
-            offline = @Offline(method = "offline"))
-    public void playVideo(int x) {
-		// play video action without offline situation.
-        videoPlayer.play();
-    }
-```
-`check` means that the method needs to check network state. true: check; false: not check.
-`online` means that what the type of network is the method requiring.
-`type` is an enumeration which has MOBILE / WIFI / ALL, there types.
-`offline` has a method, means that when network is not connected, which method should to handle it.
+3. Please compile `'org.aspectj:aspectjrt:1.8.5'` or other versions you know such as 1.8.9+.
+Just like above, oh, it should be added in your 'app' module `build.gradle`.
 
-3.Declares a method that you give in @Offline.
+4. Config 'app' `build.gradle`.
+If you don't know how to config, please check target project. Give a link below:
+[app build.gradle configuration][1]
+
+5. Add a Pair of Annotation
+NetSugar provides three annotations for you to use:
+    * `@NetSugar(type=[NetworkType], pair=[int])`
+    * `@Offline(pair=[int])`
+    * `@Global`
+
+@NetSugar and @Offline are aimed at method only.<strong>Please remember, they MUST be used as a PAIR with same value.</strong>
 ```
-// this method to handle offline
-public void offline() {
-	// do some notifications by a toast or a dialg.
-	// or other logical operations.
+@NetSugar(type=NetworkType.WIFI, pair=0x1)
+private void playVideo() {
+    // only prepare playing video works.
+}
+
+@Offline(pair=0x1)
+private void handlePlayVideoOffline(MatchResult result) {
+    // when network work state is not satisfied, this method will be invoked.
 }
 ```
+As you see, @NetSugar and @Offline are showing with the same value of 'pair' at same time, it is NECESSARY.
+If you think there is no need for actions to handle offline or network state not matching situations,
+you should also provide this kind of method like above.
+If you won't, `NoSuchMethodException` will be thrown. It is caused by method searching mechanism.
+You may read `netsugar-master/src/main/java/su.hm.netsugar_master/aspect/aj_ns/NetSugarAspect.java` to get
+more details.
 
-4.Now, there is no need to do anything, AspectJ is coming.
+6. Config 'pair' value in them
+Like above, pairs are same value. Why I do that? For method hooking.
+In the previous version, there was a big issue, is that when a class has two methods with the same name,
+NetSugarAspect is puzzled. It will handle the execution in order. However, problems happened. Two methods
+which having the same name but different arguments are designed to cope with different things, method
+reflection api cannot do that just because of arguments.
+Thus, this version, I change method pairing mechanism, use a 'pair' to hook method one on one.
+Please note that:
+    * if you won't provide @Offline or its pair value, a `NoHookException` or `WrongPairException` will be thrown.
+    * if you annotate method with @Offline and same value more than one, only the first method framework checked will be executed.
+    * The default pair value of @Offline is 0x0, it is used for validating inside, please don't use it. Pair value will be taken bigger than 0x0.
+
+7. Receiving the callback argument:MatchResult
+You may be inquisitive about why we provide the method with a MatchResult as above.
+The method annotated with @Offline will be handled automatically, that is, there is no need to consider how
+and where to invoke this method. The method is executed by NetSugar framework. As for you, just compose your
+codes when this situation happen.
+MatchResult is an argument which NetSugar gives you. It represents network checking result and framework has
+already initialized for you, just use it like an normal object.
+It will tell you `matchType(int)`, `reason(String)`, `currentNetworkType(NetworkType)`.
+```
+    @Offline(pair=0x1)
+    private void handleOffline(MatchResult result) {
+        Toast.makeText(MainActivity.this, result.getReason(), /* time */).show();
+    }
+```
+Please note that:
+    * The method you provide must have an argument and its type must be MatchResult.
+    * You can define your own arguments after MatchResult in params list.
+
+8. Finish Injection
+In some Activity, you must finish this operation:
+```
+    // this means context fo current Activity
+    NetworkSugar.inject(this);
+```
+
+Alright, everything is ok, just enjoy the convenience NetSugar brings to you.(A little awkward... ^.~)
 
 # Limitations & Issues
-1. Only methods can be annotated with @NetSugar.
-2. The methods you point out in @Offline are declared without arguments merely. It is a big issue now which is going to solve in next version. 
-3. Write an annotation of @NetSugar is a litte bit complicated. It will be simplified next version.
-4. When we just want to check network state between codes where the execution is not from the beginning, it is hard for @NetSugar framework.
-   It is an issue the annotation you write to check network is not from the beginning.
+--------
+1. If you find @Global annotation, please do not use it. It has some issues about service and broadcast.
+2. Must provide correct pair value between @NetSugar and @Offline.
+3. The method annotated with @Offline will receive an argument MatchResult. Must remember that.
+4. Config your sample according to github project configuration when you find sample won't work.
+
+# Something Funny
+--------
+When you read project carefully, the core has a new hierarchy of aspect.
+Do you know? Aspect folder tortured me to death almost.
+Now aspect welcomes its new hierarchy:
+- aspect
+____-aj_d
+_________- DemoAspect.java
+____-aj_global
+_________- GlobalAspect.java
+____-aj_ns
+_________- NetSugarAspect.java
+
+Don't ask me why? To ask for AspectJ!!! I don't know either.
 
 # Note
+--------
 You'd better to config all arguments to @NetSugar, specially the method in @Offline.
 Method searching depends on Java reflection, if there is no method matching, a `NoSuchMethodException`
-will be thrown. The application will stop unexpectly.
+will be thrown. The application will stop unexpectedly.
 
-# Configuration
-We finish NetSugar with AOP and AspectJ, it is hard for me to config the app gradle and module gradle. It
-spent me a lot of time. Android Studio and your project do not support AspectJ and its compiling env.
-We should complete configuration manually.
-Joel Dean with his Open-Source Flender provides a kind of configuration, that is plug-in by groovy.
-For us, we could only configs the app and project gradle file.
-
-1.app build.gradle
-```
-import org.aspectj.bridge.IMessage
-import org.aspectj.bridge.MessageHandler
-import org.aspectj.tools.ajc.Main
-
-buildscript {
-    repositories {
-        mavenCentral()
-    }
-    dependencies {
-        classpath 'org.aspectj:aspectjtools:1.8.5'
-    }
-}
-
-apply plugin: 'com.android.application'
-
-repositories {
-    mavenCentral()
-}
-
-android {
-    compileSdkVersion 25
-    buildToolsVersion "25.0.2"
-    defaultConfig {
-        applicationId "su.hm.netsugar"
-        minSdkVersion 9
-        targetSdkVersion 25
-        versionCode 1
-        versionName "1.0"
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-
-        jackOptions {
-            enabled true
-        }
-    }
-    buildTypes {
-        release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-        }
-    }
-
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
-    }
-}
-
-dependencies {
-    compile fileTree(include: ['*.jar'], dir: 'libs')
-    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
-        exclude group: 'com.android.support', module: 'support-annotations'
-    })
-    compile 'com.android.support:appcompat-v7:25.1.1'
-    testCompile 'junit:junit:4.12'
-    compile 'org.aspectj:aspectjrt:1.8.5'
-    compile project(path: ':netsugar-master')
-}
-
-final def log = project.logger
-final def variants = project.android.applicationVariants
-
-variants.all { variant ->
-    if (!variant.buildType.isDebuggable()) {
-        log.debug("Skipping non-debuggable build type '${variant.buildType.name}'.")
-        return;
-    }
-
-    JavaCompile javaCompile = variant.javaCompile
-    javaCompile.doLast {
-        String[] args = ["-showWeaveInfo",
-                         "-1.7",
-                         "-inpath", javaCompile.destinationDir.toString(),
-                         "-aspectpath", javaCompile.classpath.asPath,
-                         "-d", javaCompile.destinationDir.toString(),
-                         "-classpath", javaCompile.classpath.asPath,
-                         "-bootclasspath", project.android.bootClasspath.join(File.pathSeparator)]
-        log.debug "ajc args: " + Arrays.toString(args)
-
-        MessageHandler handler = new MessageHandler(true);
-        new Main().run(args, handler);
-        for (IMessage message : handler.getMessages(null, true)) {
-            switch (message.getKind()) {
-                case IMessage.ABORT:
-                case IMessage.ERROR:
-                case IMessage.FAIL:
-                    log.error message.message, message.thrown
-                    break;
-                case IMessage.WARNING:
-                    log.warn message.message, message.thrown
-                    break;
-                case IMessage.INFO:
-                    log.info message.message, message.thrown
-                    break;
-                case IMessage.DEBUG:
-                    log.debug message.message, message.thrown
-                    break;
-            }
-        }
-    }
-}
-```
-You can config it according to my file and find difference between the two files.
+If you want to get more details, please read modification documents.
+[ModifyDoc.][2]
 
 # Thanks
+--------
 1.Joel Dean and his project Flender
 He gave me the idea to be the whole solution to solve my project.
 
@@ -204,7 +192,7 @@ His blog helped me a lot.
 His demo on github gave me some ideas.
 
 # Version
-0.1.2
+v1.0 (Stable)
 
 # Declaration
 NetSugar looks like a baby for me though she has a lot of drawbacks and bugs.
@@ -229,3 +217,6 @@ me appreciated. Thank you.
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
     See the License for the specific language governing permissions and
     limitations under the License.
+
+[1]:https://github.com/sucong0826/NetSugar/blob/master/app/build.gradle
+[2]:https://github.com/sucong0826/NetSugar/tree/master/modifications/m_v1_0.txt
