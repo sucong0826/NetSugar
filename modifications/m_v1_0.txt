@@ -1,0 +1,41 @@
+1.Simplify and re-define @NetSugar and @Offline annotations.
+
+@NetSugar removes 'check' method, if you annotate a method 
+with @NetSugar, we defaultly consider that you want to check 
+network state in this annotated method with net sugar.
+In the meanwhile, a new method named 'pair' is provided.
+It is used for pairing @Offline annotation, it will be introduced
+later.
+Therefore, it becomes like below:
+`@NetSugar(type=[NetworkType], pair=[int])`
+
+Sample
+`@NetSugar(type=WIFI, pair=1)`
+method();
+
+`@Offline(pair=1)`
+OfflineMethod();
+
+Defaultly, the 'type' if you won't provide, NetworkType.ALL is set.
+'pair' means there is going to have another pair with same value 1.
+However, only 1 on 1 mode is allowed.
+
+Re-define @Offline annotation.
+`@Offline(pair=[int])`
+So as you see, @Offline is re-defined, only pair method is given.
+It has the same meaning with pair in @NetSugar.
+When the two annotation pair successfully, this method annotated with @Offline will
+be executed when offline situation happens.
+
+Note: Please keep only one method existing which is annotated with @Offline and value of
+pair is same as @NetSugar giving. If you assign two methods annotated with @Offline with 
+same pair value, the first method will be executed. 
+
+The modification will solve an issue about an offline method being invoked.
+In version 1.0, 
+
+// invoke the offline method.
+m.invoke(point.getTarget(), (Object[]) null);
+
+The second parameter is null and null is casted to (Object[]), it means that the method annotated with
+@Offline can not have arguements, that's explain why I said that in README ISSUES&LIMITATIONS.
